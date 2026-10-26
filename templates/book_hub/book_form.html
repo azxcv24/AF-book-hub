@@ -8,9 +8,41 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data" novalidate>
+            <form method="post" enctype="multipart/form-data" novalidate id="book-form">
                 {% csrf_token %}
+
+                {% if form.isbn13 %}
+                <div class="mb-3">
+                    <label class="form-label">ISBN 조회</label>
+                    <div class="input-group">
+                        <input type="text" id="isbn-lookup-input" class="form-control" placeholder="ISBN-13 또는 ISBN-10">
+                        <select class="form-select" id="isbn-lookup-provider" style="max-width: 140px;">
+                            <option value="openlibrary">OpenLibrary</option>
+                            <option value="naver">네이버</option>
+                            <option value="kakao">카카오</option>
+                        </select>
+                        <button type="button" class="btn btn-outline-primary" id="isbn-lookup-btn">
+                            <i class="bi bi-search"></i> 조회
+                        </button>
+                    </div>
+                    <div class="form-text">ISBN 입력 후 조회하면 제목·저자·출판사·표지 등을 자동으로 채웁니다.</div>
+                </div>
+                {% endif %}
+
                 {{ form.as_p }}
+
+                {% if form.cover_url and picker_url %}
+                <div class="mb-3">
+                    <label class="form-label">표지 선택</label>
+                    <div class="input-group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="openFileHubPicker('id_cover_url')">
+                            <i class="bi bi-image"></i> file_hub에서 표지 URI 선택
+                        </button>
+                    </div>
+                    <div class="form-text">file_hub에 저장된 이미지의 URI를 표지 URL로 채웁니다.</div>
+                </div>
+                {% endif %}
+
                 <div class="mt-3">
                     <button type="submit" class="btn btn-primary">저장</button>
                     <a href="{% url 'book_hub:book_list' %}" class="btn btn-outline-secondary">취소</a>
@@ -19,4 +51,91 @@
         </div>
     </div>
 </div>
+
+{% if picker_url %}
+<!-- file_hub picker modal -->
+<div class="modal fade" id="fileHubModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">file_hub에서 선택</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="fileHubFrame" src="" style="width:100%; height:400px; border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+let targetFieldId = null;
+
+{% if picker_url %}
+function openFileHubPicker(fieldId) {
+    targetFieldId = fieldId;
+    const modal = new bootstrap.Modal(document.getElementById('fileHubModal'));
+    document.getElementById('fileHubFrame').src = "{{ picker_url }}?mode=file";
+    modal.show();
+}
+
+window.addEventListener('message', function(ev) {
+    if (ev.data && ev.data.type === 'file_hub.selected' && targetFieldId) {
+        const el = document.getElementById(targetFieldId);
+        if (el) el.value = ev.data.uri || '';
+        bootstrap.Modal.getInstance(document.getElementById('fileHubModal')).hide();
+    }
+});
+{% endif %}
+
+{% if form.isbn13 %}
+document.getElementById('isbn-lookup-btn').addEventListener('click', async function() {
+    const isbn = document.getElementById('isbn-lookup-input').value.trim();
+    const provider = document.getElementById('isbn-lookup-provider').value;
+    if (!isbn) {
+        alert('ISBN을 입력하세요.');
+        return;
+    }
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    try {
+        const resp = await fetch(`/plugins/book_hub/api/isbn-lookup/?isbn=${encodeURIComponent(isbn)}&provider=${provider}`);
+        const payload = await resp.json();
+        if (!resp.ok) {
+            alert(payload.error || '조회에 실패했습니다.');
+            return;
+        }
+        fillForm(payload.data);
+    } catch (err) {
+        alert('오류: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search"></i> 조회';
+    }
+});
+
+function fillForm(data) {
+    const map = {
+        'id_title': data.title,
+        'id_subtitle': data.subtitle,
+        'id_authors': data.authors,
+        'id_publisher': data.publisher,
+        'id_published_at': data.published_at,
+        'id_description': data.description,
+        'id_cover_url': data.cover_url,
+        'id_page_count': data.page_count,
+        'id_isbn13': data.isbn13,
+        'id_isbn10': data.isbn10,
+    };
+    for (const [id, value] of Object.entries(map)) {
+        const el = document.getElementById(id);
+        if (el && value !== undefined && value !== null && value !== '') {
+            el.value = value;
+        }
+    }
+}
+{% endif %}
+</script>
 {% endblock %}

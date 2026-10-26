@@ -8,17 +8,38 @@
 
     <div class="card">
         <div class="card-body">
-            <p class="text-muted">설정은 플러그인 관리자 페이지에서 수정할 수 있습니다.</p>
-            <dl class="row">
-                <dt class="col-sm-3">기본 통화</dt>
-                <dd class="col-sm-9">{{ config.default_currency|default:"KRW" }}</dd>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="default_currency" class="form-label">기본 통화</label>
+                    <input type="text" class="form-control" id="default_currency" name="default_currency"
+                           value="{{ config.default_currency|default:"KRW" }}" maxlength="3">
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="enable_isbn_lookup" name="enable_isbn_lookup"
+                           {% if config.enable_isbn_lookup|default:True %}checked{% endif %}>
+                    <label class="form-check-label" for="enable_isbn_lookup">ISBN 조회 사용</label>
+                </div>
+                <div class="mb-3">
+                    <label for="lookup_provider" class="form-label">기본 ISBN 조회 제공자</label>
+                    <select class="form-select" id="lookup_provider" name="lookup_provider">
+                        <option value="openlibrary" {% if config.lookup_provider|default:"openlibrary" == "openlibrary" %}selected{% endif %}>OpenLibrary</option>
+                        <option value="naver" {% if config.lookup_provider|default:"openlibrary" == "naver" %}selected{% endif %}>네이버</option>
+                        <option value="kakao" {% if config.lookup_provider|default:"openlibrary" == "kakao" %}selected{% endif %}>카카오</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">저장</button>
+            </form>
+        </div>
+    </div>
 
-                <dt class="col-sm-3">ISBN 조회 사용</dt>
-                <dd class="col-sm-9">{{ config.enable_isbn_lookup|default:True|yesno:"예,아니오" }}</dd>
-
-                <dt class="col-sm-3">조회 제공자</dt>
-                <dd class="col-sm-9">{{ config.lookup_provider|default:"openlibrary" }}</dd>
-            </dl>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">환경변수</h5>
+            <ul class="mb-0">
+                <li><code>BOOK_HUB_NAVER_CLIENT_ID</code> / <code>BOOK_HUB_NAVER_CLIENT_SECRET</code> — 네이버 책 API</li>
+                <li><code>BOOK_HUB_KAKAO_REST_API_KEY</code> — 카카오 책 검색 API</li>
+            </ul>
         </div>
     </div>
 </div>

@@ -17,7 +17,7 @@
     </div>
 
     <div class="row g-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">등록된 책</h6>
@@ -25,7 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">검증된 책</h6>
@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">내 서재</h6>
@@ -41,7 +41,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
             <div class="card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">읽는 중</h6>
@@ -52,8 +52,29 @@
     </div>
 
     <div class="row g-4 mt-2">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">내 독서 현황</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>읽고 싶음</span>
+                        <span class="fw-bold">{{ wishlist_count|default:0 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>완독</span>
+                        <span class="fw-bold">{{ completed_count|default:0 }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>하차</span>
+                        <span class="fw-bold">{{ dropped_count|default:0 }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
                 <div class="card-header">
                     <h5 class="mb-0">최근 등록된 책</h5>
                 </div>
@@ -62,7 +83,7 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <a href="{% url 'book_hub:book_detail' book.pk %}">{{ book.title }}</a>
                         {% if book.verified %}
-                        <span class="badge bg-success">검증됨</span>
+                        <span class="badge bg-success">검증</span>
                         {% endif %}
                     </li>
                     {% empty %}
@@ -71,6 +92,26 @@
                 </ul>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">최근 검증된 책</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for book in top_verified %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{% url 'book_hub:book_detail' book.pk %}">{{ book.title }}</a>
+                        <span class="badge bg-success">검증</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">아직 검증된 책이 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">

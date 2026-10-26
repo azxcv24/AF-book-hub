@@ -1,0 +1,70 @@
+{% extends "portal/base.html" %}
+
+{% block title %}{{ title|default:"내 서재" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="h3 mb-4">{{ title|default:"내 서재" }}</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" novalidate id="personalbook-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                {% if picker_url %}
+                <div class="mb-3">
+                    <label class="form-label">전자책 파일 선택</label>
+                    <div class="input-group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="openFileHubPicker('id_location')">
+                            <i class="bi bi-file-earmark"></i> file_hub에서 파일 URI 선택
+                        </button>
+                    </div>
+                    <div class="form-text">file_hub에 저장된 전자책 파일의 URI를 위치/경로로 채웁니다.</div>
+                </div>
+                {% endif %}
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">저장</button>
+                    <a href="{% url 'book_hub:personalbook_list' %}" class="btn btn-outline-secondary">취소</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if picker_url %}
+<div class="modal fade" id="fileHubModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">file_hub에서 선택</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe id="fileHubFrame" src="" style="width:100%; height:400px; border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let targetFieldId = null;
+
+function openFileHubPicker(fieldId) {
+    targetFieldId = fieldId;
+    const modal = new bootstrap.Modal(document.getElementById('fileHubModal'));
+    document.getElementById('fileHubFrame').src = "{{ picker_url }}?mode=file";
+    modal.show();
+}
+
+window.addEventListener('message', function(ev) {
+    if (ev.data && ev.data.type === 'file_hub.selected' && targetFieldId) {
+        const el = document.getElementById(targetFieldId);
+        if (el) el.value = ev.data.uri || '';
+        bootstrap.Modal.getInstance(document.getElementById('fileHubModal')).hide();
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

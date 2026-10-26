@@ -45,9 +45,23 @@ class BookSearchForm(forms.Form):
 class PersonalBookForm(forms.ModelForm):
     """개인 서재 등록/수정 폼."""
 
+    book = forms.ModelChoiceField(
+        queryset=Book.objects.order_by("title"),
+        label="책",
+        required=False,
+    )
+
+    def __init__(self, *args, book_given=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if book_given:
+            self.fields["book"].disabled = True
+        else:
+            self.fields["book"].required = True
+
     class Meta:
         model = PersonalBook
         fields = [
+            "book",
             "format",
             "status",
             "location",

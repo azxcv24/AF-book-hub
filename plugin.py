@@ -67,6 +67,12 @@ class Plugin(BasePlugin):
                 icon="bi-search",
             ),
             NavItem(
+                order=13,
+                label="검증 자료",
+                url=reverse("book_hub:verification_list"),
+                icon="bi-shield-check",
+            ),
+            NavItem(
                 order=20,
                 label="설정",
                 url=reverse("book_hub:settings"),

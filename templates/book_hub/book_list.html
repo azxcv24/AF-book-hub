@@ -6,6 +6,9 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0"><i class="bi bi-search"></i> 책 찾기</h1>
+        <a href="{% url 'book_hub:book_export' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-download"></i> CSV 다운로드
+        </a>
         <a href="{% url 'book_hub:book_create' %}" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-lg"></i> 책 등록
         </a>
