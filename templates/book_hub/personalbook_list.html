@@ -12,12 +12,12 @@
     </div>
 
     <div class="row g-3 mb-4">
-        {% for status in status_counts.items %}
+        {% for status in status_counts %}
         <div class="col-6 col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    <h6 class="card-subtitle mb-2 text-muted">{{ status.0 }}</h6>
-                    <p class="display-6 mb-0">{{ status.1 }}</p>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ status.label }}</h6>
+                    <p class="display-6 mb-0">{{ status.count }}</p>
                 </div>
             </div>
         </div>

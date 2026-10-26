@@ -152,10 +152,14 @@ class PersonalBookListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
-        ctx["status_counts"] = {
-            status.value: PersonalBook.objects.filter(owner=user, status=status.value).count()
+        ctx["status_counts"] = [
+            {
+                "key": status.value,
+                "label": status.label,
+                "count": PersonalBook.objects.filter(owner=user, status=status.value).count(),
+            }
             for status in PersonalBook.Status
-        }
+        ]
         return ctx
 
 
