@@ -1,0 +1,96 @@
+{% extends "portal/base.html" %}
+
+{% block title %}북 허브{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-book"></i> 북 허브</h1>
+        <div>
+            <a href="{% url 'book_hub:book_list' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-search"></i> 책 찾기
+            </a>
+            <a href="{% url 'book_hub:personalbook_list' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-bookshelf"></i> 내 서재
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">등록된 책</h6>
+                    <p class="display-6 mb-0">{{ book_count|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">검증된 책</h6>
+                    <p class="display-6 mb-0">{{ verified_count|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">내 서재</h6>
+                    <p class="display-6 mb-0">{{ my_count|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">읽는 중</h6>
+                    <p class="display-6 mb-0">{{ reading_count|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">최근 등록된 책</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for book in recent_books %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{% url 'book_hub:book_detail' book.pk %}">{{ book.title }}</a>
+                        {% if book.verified %}
+                        <span class="badge bg-success">검증됨</span>
+                        {% endif %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">아직 등록된 책이 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">최근 검증 자료</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for v in recent_verifications %}
+                    <li class="list-group-item">
+                        <a href="{% url 'book_hub:book_detail' v.book.pk %}">{{ v.book.title }}</a>
+                        <small class="text-muted">— {{ v.get_reliability_display }}</small>
+                        {% if v.source_title %}
+                        <div class="small text-truncate">{{ v.source_title }}</div>
+                        {% endif %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">아직 검증 자료가 없습니다.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

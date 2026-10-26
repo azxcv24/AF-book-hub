@@ -1,0 +1,11 @@
+<p class="display-6 mb-1">{{ my_books|default:0 }}</p>
+<p class="text-muted">내 서재</p>
+<div class="d-flex gap-2 small text-muted mb-2">
+    <span>읽는 중 {{ reading|default:0 }}</span>
+    <span>·</span>
+    <span>완독 {{ completed|default:0 }}</span>
+    <span>·</span>
+    <span>위시리스트 {{ wishlist|default:0 }}</span>
+</div>
+<a class="btn btn-sm btn-outline-secondary" href="{{ personal_url }}">내 서재 보기</a>
+<a class="btn btn-sm btn-outline-primary" href="{{ books_url }}">책 찾기</a>

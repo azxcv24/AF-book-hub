@@ -1,0 +1,19 @@
+{% extends "portal/base.html" %}
+
+{% block title %}삭제 확인{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="h4 mb-3">정말 삭제하시겠습니까?</h1>
+            <p class="text-muted">{{ object }}</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">삭제</button>
+                <a href="{% url 'book_hub:personalbook_list' %}" class="btn btn-outline-secondary">취소</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

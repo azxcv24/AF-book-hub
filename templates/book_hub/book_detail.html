@@ -1,0 +1,96 @@
+{% extends "portal/base.html" %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-1">{{ book.title }}</h1>
+            {% if book.subtitle %}<p class="text-muted mb-1">{{ book.subtitle }}</p>{% endif %}
+            <p class="mb-0">
+                <span class="badge bg-light text-dark">{{ book.get_source_type_display }}</span>
+                {% if book.verified %}<span class="badge bg-success">검증됨</span>{% endif %}
+            </p>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'book_hub:book_update' book.pk %}" class="btn btn-outline-secondary btn-sm">수정</a>
+            {% if not personal_copy %}
+            <a href="{% url 'book_hub:personalbook_create' %}?book={{ book.pk }}" class="btn btn-primary btn-sm">내 서재에 담기</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    {% if book.cover_url %}
+                    <img src="{{ book.cover_url }}" alt="{{ book.title }}" class="img-fluid rounded mb-3">
+                    {% else %}
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+                        <i class="bi bi-book" style="font-size: 4rem; color: #ccc;"></i>
+                    </div>
+                    {% endif %}
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>저자:</strong> {{ book.authors|default:"-" }}</li>
+                        <li><strong>출판사:</strong> {{ book.publisher|default:"-" }}</li>
+                        <li><strong>출판일:</strong> {{ book.published_at|default:"-" }}</li>
+                        <li><strong>ISBN-13:</strong> {{ book.isbn13|default:"-" }}</li>
+                        <li><strong>ISBN-10:</strong> {{ book.isbn10|default:"-" }}</li>
+                        <li><strong>페이지:</strong> {{ book.page_count|default:"-" }}</li>
+                        <li><strong>언어:</strong> {{ book.language|default:"-" }}</li>
+                        <li><strong>카테고리:</strong> {{ book.category|default:"-" }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">설명</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ book.description|linebreaks|default:"설명이 없습니다." }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">검증 자료</h5>
+                    <a href="{% url 'book_hub:book_verify' book.pk %}" class="btn btn-sm btn-outline-success">추가</a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for v in verifications %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ v.get_reliability_display }}</strong>
+                            <small class="text-muted">{{ v.verified_at|date:"Y-m-d" }}</small>
+                        </div>
+                        {% if v.source_title %}<div>{{ v.source_title }}</div>{% endif %}
+                        {% if v.source_url %}<a href="{{ v.source_url }}" target="_blank" class="small">{{ v.source_url }}</a>{% endif %}
+                        {% if v.notes %}<p class="small text-muted mb-0 mt-1">{{ v.notes }}</p>{% endif %}
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">검증 자료가 없습니다. 다른 플러그인이 근거로 삼을 출처를 추가해 보세요.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            {% if personal_copy %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">내 서재 상태</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>형태:</strong> {{ personal_copy.get_format_display }}</p>
+                    <p><strong>상태:</strong> {{ personal_copy.get_status_display }}</p>
+                    <p><strong>평점:</strong> {{ personal_copy.rating|default:"-" }}</p>
+                    <a href="{% url 'book_hub:personalbook_update' personal_copy.pk %}" class="btn btn-sm btn-outline-secondary">수정</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

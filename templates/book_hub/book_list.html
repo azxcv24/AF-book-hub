@@ -1,0 +1,94 @@
+{% extends "portal/base.html" %}
+
+{% block title %}책 찾기{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-search"></i> 책 찾기</h1>
+        <a href="{% url 'book_hub:book_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> 책 등록
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    {{ search_form.q.label_tag }}
+                    {{ search_form.q }}
+                </div>
+                <div class="col-md-3">
+                    {{ search_form.source_type.label_tag }}
+                    {{ search_form.source_type }}
+                </div>
+                <div class="col-md-3">
+                    <div class="form-check">
+                        {{ search_form.verified_only }}
+                        {{ search_form.verified_only.label_tag }}
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">검색</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>제목</th>
+                    <th>저자</th>
+                    <th>출판사</th>
+                    <th>형태</th>
+                    <th>상태</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>
+                        <a href="{% url 'book_hub:book_detail' book.pk %}">{{ book.title }}</a>
+                        {% if book.subtitle %}<small class="text-muted">{{ book.subtitle }}</small>{% endif %}
+                    </td>
+                    <td>{{ book.authors|default:"-" }}</td>
+                    <td>{{ book.publisher|default:"-" }}</td>
+                    <td>{{ book.get_source_type_display }}</td>
+                    <td>
+                        {% if book.verified %}
+                        <span class="badge bg-success">검증됨</span>
+                        {% else %}
+                        <span class="badge bg-secondary">미검증</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">결과가 없습니다.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.source_type %}&source_type={{ request.GET.source_type }}{% endif %}{% if request.GET.verified_only %}&verified_only=on{% endif %}">이전</a>
+            </li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.source_type %}&source_type={{ request.GET.source_type }}{% endif %}{% if request.GET.verified_only %}&verified_only=on{% endif %}">다음</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

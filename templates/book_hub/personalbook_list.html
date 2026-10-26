@@ -1,0 +1,86 @@
+{% extends "portal/base.html" %}
+
+{% block title %}내 서재{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0"><i class="bi bi-bookshelf"></i> 내 서재</h1>
+        <a href="{% url 'book_hub:book_list' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> 책 담기
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        {% for status in status_counts.items %}
+        <div class="col-6 col-md-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6 class="card-subtitle mb-2 text-muted">{{ status.0 }}</h6>
+                    <p class="display-6 mb-0">{{ status.1 }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>책</th>
+                    <th>형태</th>
+                    <th>상태</th>
+                    <th>평점</th>
+                    <th>진행률</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pb in personal_books %}
+                <tr>
+                    <td>
+                        <a href="{% url 'book_hub:book_detail' pb.book.pk %}">{{ pb.book.title }}</a>
+                    </td>
+                    <td>{{ pb.get_format_display }}</td>
+                    <td>{{ pb.get_status_display }}</td>
+                    <td>{{ pb.rating|default:"-" }}</td>
+                    <td>
+                        {% if pb.progress_percent %}
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ pb.progress_percent }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ pb.progress_percent }}%</small>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'book_hub:personalbook_update' pb.pk %}" class="btn btn-sm btn-outline-secondary">수정</a>
+                        <a href="{% url 'book_hub:personalbook_delete' pb.pk %}" class="btn btn-sm btn-outline-danger">삭제</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">내 서재가 비어 있습니다.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">이전</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">다음</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
