@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import (
@@ -364,7 +364,7 @@ class PersonalBookStatusUpdateView(LoginRequiredMixin, View):
         pb = get_object_or_404(PersonalBook.objects.filter(owner=request.user), pk=pk)
         status = request.POST.get("status")
         progress = request.POST.get("progress_percent")
-        if status and status in dict(PersonalBook.Status.values):
+        if status and status in PersonalBook.Status.values:
             pb.status = status
             if status == PersonalBook.Status.COMPLETED:
                 pb.progress_percent = 100
