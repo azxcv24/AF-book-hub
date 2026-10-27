@@ -6,7 +6,7 @@ import json
 import logging
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -378,7 +378,12 @@ class PersonalBookStatusUpdateView(LoginRequiredMixin, View):
         return redirect(request.POST.get("next") or "book_hub:personalbook_list")
 
 
-class SettingsView(LoginRequiredMixin, View):
+class SettingsView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """플러그인 전체 설정(비밀값 포함) — 운영자(스태프)만. 2026-10-28 팀 동료 초대 전 점검에서 막음."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
     """북 허브 설정 — plugin_system.Plugin.config JSON을 편집."""
 
     template_name = "book_hub/settings.html"

@@ -72,6 +72,7 @@ class Plugin(BasePlugin):
                 url=reverse("book_hub:verification_list"),
                 icon="bi-shield-check",
             ),
+        ] + ([
             NavItem(
                 order=20,
                 label="설정",
@@ -79,7 +80,7 @@ class Plugin(BasePlugin):
                 icon="bi-gear",
                 kind="settings",
             ),
-        ]
+        ] if request.user.is_staff else [])
 
     def get_dashboard_cards(self, request):
         if not request.user.is_authenticated:
